@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+
+  consumer:
+    build: ./consumer
+    container_name: consumer_log
+    tty: true
+    ports:
+      - 5000:5000
+    volumes:
+      - ./consumer/app:/app
+    env_file:
+      - ./consumer/.env
+    networks:
+        - rabbit_net
+
+  publisher:
+    build: ./publisher
+    container_name: publisher_log
+    tty: true
+    restart: always
+    ports:
+      - 5005:5005
+    volumes:
+      - ./publisher/app:/app
+    env_file:
+      - ./publisher/.env
+    networks:
+        - rabbit_net
+        - db_net
+
+networks:
+  rabbit_net:
+    external: true
+  db_net:
+    external: true

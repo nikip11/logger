@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+
+  api:
+    build: ./api
+    tty: true
+    container_name: api_log
+    ports:
+      - 5010:5010
+    volumes:
+      - ./api/app:/app
+    env_file:
+      - ./api/.env
+    networks:
+        - proxy
+        - db_net
+
+  front:
+    build: ./front
+    tty: true
+    container_name: app
+    volumes:
+      - ./front/app:/app
+    ports:
+      - 8080:8080
+    working_dir: /app
+    command: yarn serve
+    expose:
+      - 8080
+
+networks:
+  db_net:
+    external: true
+  proxy:
+    external: true

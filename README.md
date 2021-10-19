@@ -43,3 +43,14 @@ RABBITMQ_DEFAULT_VHOST=/
 ```
 
 ### MongoDB
+
+## TO-DO
+- Connect Symfony to rabbitMQ
+- On production
+    - Flask
+    - RabbitMQ
+### ```Team```
+- Catch all js errors
+- Create LogService on vue
+- Create LogService on symfony
+- Define objecto to save

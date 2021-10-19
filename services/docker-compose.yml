@@ -1,46 +1,47 @@
 version: '3.8'
 services:
-  proxy:
-    image: jwilder/nginx-proxy
-    container_name: proxy
-    restart: always
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./data/conf:/etc/nginx/conf.d
-      - ./data/vhost:/etc/nginx/vhost.d
-      - ./data/html:/usr/share/nginx/html
-      - ./data/certs:/etc/nginx/certs
-    networks:
-      - proxy
-    env_file:
-      - .env
-    environment:
-      NGINX_PROXY_CONTAINER: ${NGINX_PROXY_CONTAINER}
-      DEFAULT_HOST: ${DEFAULT_HOST}
-      DHPARAM_GENERATION: "false"
-    labels:
-      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+  # proxy:
+  #   image: jwilder/nginx-proxy
+  #   container_name: proxy
+  #   restart: always
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   volumes:
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+  #     - ./proxy/data/conf:/etc/nginx/conf.d
+  #     - ./proxy/data/vhost:/etc/nginx/vhost.d
+  #     - ./proxy/data/html:/usr/share/nginx/html
+  #     - ./proxy/data/certs:/etc/nginx/certs
+  #   networks:
+  #     - proxy
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     NGINX_PROXY_CONTAINER: ${NGINX_PROXY_CONTAINER}
+  #     DEFAULT_HOST: ${DEFAULT_HOST}
+  #     DHPARAM_GENERATION: "false"
+  #   labels:
+  #     - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
 
-  letsencrypt:
-    container_name: letsencrypt
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ./data/conf:/etc/nginx/conf.d
-      - ./data/vhost:/etc/nginx/vhost.d
-      - ./data/html:/usr/share/nginx/html
-      - ./data/certs:/etc/nginx/certs
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+  # letsencrypt:
+  #   container_name: letsencrypt
+  #   image: jrcs/letsencrypt-nginx-proxy-companion
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./proxy/data/conf:/etc/nginx/conf.d
+  #     - ./proxy/data/vhost:/etc/nginx/vhost.d
+  #     - ./proxy/data/html:/usr/share/nginx/html
+  #     - ./proxy/data/certs:/etc/nginx/certs
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+
   mongodb:
     image: mongo:latest
     volumes:
       - ./mongodb/db-data:/data/db
-      - ./mongodb/mongo-config:/data/configdb
+      # - ./mongodb/mongo-config:/data/configdb
     ports:
       - 27017:27017
     networks:
@@ -55,8 +56,10 @@ services:
     env_file:
       - ./rabbitmq/.env
     volumes:
-        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+        - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+        - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+        - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+        - ./rabbitmq/logs:/var/log/rabbitmq/log
     networks:
         - rabbit_net
 
@@ -65,5 +68,5 @@ networks:
     name: rabbit_net
   db_net:
     name: db_net
-  proxy:
-    name: proxy
+  # proxy:
+  #   name: proxy

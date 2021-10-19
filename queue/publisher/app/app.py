@@ -4,14 +4,19 @@ import pika
 
 app = Flask(__name__)
 
-
 credentials = pika.PlainCredentials('admin', 'admin')
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-    'rabbitmq',
-    5672,
-    '/',
-    credentials
-))
+parameters = pika.ConnectionParameters(
+                'rabbitmq',
+                5672,
+                '/',
+                credentials
+            )
+
+def getChannel():
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
+    channel.queue_declare(queue='logs', durable=True)
+    return channel
 
 @app.route('/')
 def welcome():
@@ -19,8 +24,7 @@ def welcome():
 
 @app.route('/logs', methods=['POST'])
 def rabbit():
-    channel = connection.channel()
-    channel.queue_declare(queue='logs', durable=True)
+    channel = getChannel()
     message = str(request.json)
     channel.basic_publish(
         exchange='',
@@ -31,15 +35,15 @@ def rabbit():
 # @app.route('/logs/test-send')
 # def test_rabbit2():
 #     # message = ' '.join(sys.argv[1:]) or "Hello World!"
-#     message=str({
-#         "name": "prueba7",
-#         "enviroment": "dev",
-#         "url": "https://np11.es",
-#         "user": "guest",
-#         "browser": "brave",
-#         "ip": "localhost",
-#         "meta": {}
-#     })
+    # message=str({
+    #     "name": "prueba7",
+    #     "enviroment": "dev",
+    #     "url": "https://np11.es",
+    #     "user": "guest",
+    #     "browser": "brave",
+    #     "ip": "localhost",
+    #     "meta": {}
+    # })
 #     channel.basic_publish(
 #         exchange='',
 #         routing_key='logs',

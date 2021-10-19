@@ -15,18 +15,18 @@ services:
         - proxy
         - db_net
 
-  front:
-    build: ./front
-    tty: true
-    container_name: app
-    volumes:
-      - ./front/app:/app
-    ports:
-      - 8080:8080
-    working_dir: /app
-    command: yarn serve
-    expose:
-      - 8080
+  # front:
+  #   build: ./front
+  #   tty: true
+  #   container_name: app
+  #   volumes:
+  #     - ./front/app:/app
+  #   ports:
+  #     - 8080:8080
+  #   working_dir: /app
+  #   command: yarn serve
+  #   expose:
+  #     - 8080
 
 networks:
   db_net:

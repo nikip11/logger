@@ -1,2 +1,4 @@
-data/
+proxy/data
+rabbitmq/data/
+rabbitmq/log/
 mongodb/db-data

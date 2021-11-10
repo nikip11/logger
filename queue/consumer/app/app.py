@@ -1,13 +1,13 @@
-import os, time, json
+import os
 from ast import literal_eval
-import helpers
 import pika
 from pymongo import MongoClient
 
-client = MongoClient("mongodb://mongodb:27017/")
-db = client.myDatabase
+client = MongoClient(os.environ.get('MONGODB_URL'))
+db = client.logger
 
-credentials = pika.PlainCredentials('admin', 'admin')
+credentials = pika.PlainCredentials(os.environ.get(
+    'RABBITMQ_USER'), os.environ.get('RABBITMQ_PASSWORD'))
 connection = pika.BlockingConnection(pika.ConnectionParameters(
     'rabbitmq',
     5672,
@@ -16,10 +16,13 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(
 ))
 channel = connection.channel()
 
+
 def callback(ch, method, properties, body):
     log = literal_eval(body.decode())
+    print(log)
     db.logs.save(log)
     ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 channel.queue_declare(queue='logs', durable=True)
 

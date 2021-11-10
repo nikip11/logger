@@ -1,72 +1,97 @@
-version: '3.8'
+version: "3.8"
 services:
-  # proxy:
-  #   image: jwilder/nginx-proxy
-  #   container_name: proxy
-  #   restart: always
-  #   ports:
-  #     - 80:80
-  #     - 443:443
-  #   volumes:
-  #     - /var/run/docker.sock:/tmp/docker.sock:ro
-  #     - ./proxy/data/conf:/etc/nginx/conf.d
-  #     - ./proxy/data/vhost:/etc/nginx/vhost.d
-  #     - ./proxy/data/html:/usr/share/nginx/html
-  #     - ./proxy/data/certs:/etc/nginx/certs
-  #   networks:
-  #     - proxy
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     NGINX_PROXY_CONTAINER: ${NGINX_PROXY_CONTAINER}
-  #     DEFAULT_HOST: ${DEFAULT_HOST}
-  #     DHPARAM_GENERATION: "false"
-  #   labels:
-  #     - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    proxy:
+        image: jwilder/nginx-proxy
+        container_name: proxy
+        restart: always
+        ports:
+            - 80:80
+            # - 443:443
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+            - ./proxy/data/conf:/etc/nginx/conf.d
+            - ./proxy/data/vhost:/etc/nginx/vhost.d
+            - ./proxy/data/html:/usr/share/nginx/html
+            - ./proxy/data/certs:/etc/nginx/certs
+        networks:
+            - proxy
+        env_file:
+            - ./proxy/.env
+        # environment:
+        #     NGINX_PROXY_CONTAINER: ${NGINX_PROXY_CONTAINER}
+        #     DEFAULT_HOST: ${DEFAULT_HOST}
+        #     DHPARAM_GENERATION: "false"
+        labels:
+            - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
 
-  # letsencrypt:
-  #   container_name: letsencrypt
-  #   image: jrcs/letsencrypt-nginx-proxy-companion
-  #   restart: always
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./proxy/data/conf:/etc/nginx/conf.d
-  #     - ./proxy/data/vhost:/etc/nginx/vhost.d
-  #     - ./proxy/data/html:/usr/share/nginx/html
-  #     - ./proxy/data/certs:/etc/nginx/certs
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+    # letsencrypt:
+    #   container_name: letsencrypt
+    #   image: jrcs/letsencrypt-nginx-proxy-companion
+    #   restart: always
+    #   env_file:
+    #     - .env
+    #   volumes:
+    #     - ./proxy/data/conf:/etc/nginx/conf.d
+    #     - ./proxy/data/vhost:/etc/nginx/vhost.d
+    #     - ./proxy/data/html:/usr/share/nginx/html
+    #     - ./proxy/data/certs:/etc/nginx/certs
+    #     - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  mongodb:
-    image: mongo:latest
-    volumes:
-      - ./mongodb/db-data:/data/db
-      # - ./mongodb/mongo-config:/data/configdb
-    ports:
-      - 27017:27017
-    networks:
-        - db_net
+    mongodb:
+        image: mongo:latest
+        container_name: mongodb
+        volumes:
+            - ./mongodb/db-data:/data/db
+            - ./mongodb/db-config:/data/configdb
+        ports:
+            - 27017:27017
+        networks:
+            - db_net
 
-  rabbit:
-    image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
-    ports:
-        - 5672:5672
-        - 15672:15672
-    env_file:
-      - ./rabbitmq/.env
-    volumes:
-        - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
-        - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-        - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-        - ./rabbitmq/logs:/var/log/rabbitmq/log
-    networks:
-        - rabbit_net
+    rabbit:
+        image: rabbitmq:3-management-alpine
+        container_name: rabbitmq
+        ports:
+            - 5672:5672
+            - 15672:15672
+        env_file:
+            - ./rabbitmq/.env
+        volumes:
+            - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+            - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+            - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+            - ./rabbitmq/logs:/var/log/rabbitmq/log
+        depends_on:
+            - proxy
+        networks:
+            - rabbit_net
+            - proxy
+
+    portainer:
+        image: portainer/portainer
+        container_name: portainer
+        command: -H unix:///var/run/docker.sock
+        restart: always
+        depends_on:
+            - proxy
+        ports:
+            - 9000:9000
+            - 8000:8000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - portainer_data:/data
+        env_file:
+            - ./portainer/.env
+        networks:
+            - proxy
 
 networks:
-  rabbit_net:
-    name: rabbit_net
-  db_net:
-    name: db_net
-  # proxy:
-  #   name: proxy
+    rabbit_net:
+        name: rabbit_net
+    db_net:
+        name: db_net
+    proxy:
+        name: proxy
+
+volumes:
+    portainer_data:

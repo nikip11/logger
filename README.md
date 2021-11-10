@@ -1,10 +1,14 @@
 # logger
-
+127.0.0.1       log.io              =>
+127.0.0.1       rabbitmq.dev.io     =>
+127.0.0.1       dashboard.io        =>
+127.0.0.1       api.dashboard.io    =>
+127.0.0.1       portainer.dev.io    =>
 ## Queue
 ### Publisher
 
 - Save log by endpoint
-http://localhost:5000/logs
+http://log.io/logs
 ```
 {
     "name": "prueba7",
@@ -12,9 +16,10 @@ http://localhost:5000/logs
     "type": "error",
     "line": 102,
     "url": "https://app.es",
+    "created_at": "2021-10-23T13:54:29.707984",
     "user": {
         "username": "user@email.es",
-        "name": "Ivan"
+        "name": "Testuser"
     },
     "browser": "brave",
     "ip": "localhost",

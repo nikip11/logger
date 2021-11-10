@@ -1,10 +1,11 @@
 import os, sys
+from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 import pika
 
 app = Flask(__name__)
 
-credentials = pika.PlainCredentials('admin', 'admin')
+credentials = pika.PlainCredentials(os.environ.get('RABBITMQ_USER'), os.environ.get('RABBITMQ_PASSWORD'))
 parameters = pika.ConnectionParameters(
                 'rabbitmq',
                 5672,
@@ -25,7 +26,10 @@ def welcome():
 @app.route('/logs', methods=['POST'])
 def rabbit():
     channel = getChannel()
-    message = str(request.json)
+    message=request.json
+    message['created_at'] = datetime.utcnow().isoformat()
+    print(message)
+    message = str(message)
     channel.basic_publish(
         exchange='',
         routing_key='logs',

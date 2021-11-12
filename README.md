@@ -1,9 +1,11 @@
 # logger
+```
 127.0.0.1       log.io              =>
 127.0.0.1       rabbitmq.dev.io     =>
 127.0.0.1       dashboard.io        =>
 127.0.0.1       api.dashboard.io    =>
 127.0.0.1       portainer.dev.io    =>
+```
 ## Queue
 ### Publisher
 
